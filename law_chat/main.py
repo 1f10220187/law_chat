@@ -27,16 +27,39 @@ OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
 
 
 # Create your views here.
-##############RAGで使う関数#########################
+##############RAGで使う変数など#########################
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY 
 os.environ["LANGCHAIN_API_KEY"] = LANGCHAIN_API_KEY
 llm = ChatOpenAI(model="gpt-4o-mini", openai_api_base=OPENAI_API_BASE)
-
 embeddings = OpenAIEmbeddings(openai_api_base=OPENAI_API_BASE)
+vectorstore_dir = "vectorstore"
+###########関数################################
+
+# ベクトルストアをロードする関数
+def load_vectorstore(url, is_pdf=False):
+    vectorstore = Chroma(persist_directory=vectorstore_dir, embedding_function=embeddings)
+    print("既存のベクトルストアを読み込みました。")
+    return vectorstore
+
+#チェーンを構築用関数
+def format_docs(docs_list):
+    return "\n\n".join(doc.page_content for doc in docs_list)
+
+# rag_chain設定関数
+def create_rag_chain(vectorstore):
+    retriever = vectorstore.as_retriever()
+    prompt = hub.pull("rlm/rag-prompt")
+    return (
+        {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
 
 @app.route('/')
 def index():
+    
     return render_template(
         'index.html'
     )
