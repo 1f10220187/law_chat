@@ -5,24 +5,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>判例チャットアプリ</title>
         <!-- Bootstrap 5のCDN（CSS） -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        
-        <!-- Bootstrap Icons（アイコン使いたい時） -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+        <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
     </head>
     <body>
-        <div class="container">
-            <h1 class="text-center">RAG Chat</h1>
-            <div id="chat-box">
+        <div id="header" class="navbar navbar-light p-4 mt-2 mb-3">
+            <p class="mx-auto display-2 fw-light text-decoration-underline">RAG Chat</p>
+        </div>
+        <div class="container d-flex flex-column align-items-center mt-4">
+            <div id="chat-box" class="p-3 mb-3 d-flex flex-column">
 
             </div>
-            <input id="message" type="text" placeholder="メッセージを入力">
-            <button onclick="sendMessage()">送信</button>
+            <div class="input-group">
+                <textarea id="message" type="text" class="form-control" placeholder="メッセージを入力" rows="1"></textarea>
+                <button class="btn btn-primary" onclick="sendMessage()">送信</button>
+            </div>
         </div>
         
 
         <script>
+            function scrollToBottom() {
+                let chatBox = document.getElementById("chat-box");
+                setTimeout(() => {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 50); // 50msの遅延で描画完了を待つ
+            }
+
             let socket = io();
             let responses = {}; // 各メッセージのIDごとにレスポンスを管理
 
@@ -35,16 +45,16 @@
                 
                 // ユーザーメッセージを追加
                 let chatBox = document.getElementById("chat-box");
-                let userMessage = document.createElement("p")
-                userMessage.className = "message user";
-                userMessage.innerHTML = "<b>あなた:</b>" + msg;
+                let userMessage = document.createElement("div")
+                userMessage.className = "message user align-self-end";
+                userMessage.innerHTML = "<b>あなた: </b>" + msg;
 
                 chatBox.appendChild(userMessage);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                scrollToBottom();
 
                 // 履歴に追加
                 chatHistory.push({role: "user",text:msg});
-                if(chatHistory.length > 6) chatHistory.shift(); // 最新6件まで保持
+                if(chatHistory.length > 10) chatHistory.shift(); // 最新6件まで保持
 
                 // WebSocket を使ってサーバーにメッセージを送信
                 socket.emit("chat_message", {
@@ -59,7 +69,7 @@
 
                 gptMessage.className = "message gpt";
                 gptMessage.id = "msg-" + data.id;
-                gptMessage.innerHTML = "<b>GPT:</b>";
+                gptMessage.innerHTML = "<b>GPT: </b>";
 
                 chatBox.appendChild(gptMessage);
                 responses[data.id] = gptMessage;
@@ -75,6 +85,7 @@
 
                     // 履歴の最新のGPTのメッセージを更新
                     chatHistory[chatHistory.length - 1].text += data.text;
+                    scrollToBottom();
                 }
             });
 
@@ -83,7 +94,7 @@
                 if(responses[data.id]){
                     delete responses[data.id] // メモリ開放
                 }
-                document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
+                scrollToBottom();
             })
         </script>
         <!-- Bootstrap 5のCDN（JS） -->

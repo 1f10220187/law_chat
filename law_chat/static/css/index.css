@@ -1,0 +1,26 @@
+body{
+    background-color: antiquewhite;
+}
+
+#header{
+    background-color: rgb(242, 252, 205);
+}
+
+#chat-box{
+    width: 100%;
+    max-width: 800px;
+    height: 500px; /* 高さ指定 */
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    overflow-y: auto; /* 縦スクロールを有効にする */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-group{
+    width: 100%;
+    max-width: 800px;
+}

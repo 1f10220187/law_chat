@@ -41,7 +41,7 @@ vectorstore_dir = "vectorstore"
 # ベクトルストアをロードする関数
 def load_vectorstore():
     vectorstore = Chroma(persist_directory=vectorstore_dir, embedding_function=embeddings)
-    print("既存のベクトルストアを読み込みました。")
+    print("ベクトルストアを読み込みました。")
     return vectorstore
 
 #チェーンを構築用関数
@@ -59,6 +59,8 @@ def create_rag_chain(vectorstore):
         | StrOutputParser()
     )
 
+vectorstore = load_vectorstore() # ベクトルストアをロード
+
 #websocketサーバー
 @socketio.on("chat_message")
 def handle_message(data):
@@ -70,7 +72,7 @@ def handle_message(data):
     full_prompt = f"{context}\nUser: {message}\nGPT:"
 
     #OpenAI APIにリクエスト
-    vectorstore = load_vectorstore() # ベクトルストアをロード
+    
     rag_chain = create_rag_chain(vectorstore) # RAGチェーンを作成
     response_id = str(time.time())  # ユニークなIDを作成
     emit("response_start", {"id": response_id})
