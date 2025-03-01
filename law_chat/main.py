@@ -1,6 +1,8 @@
-from law_chat import app
+from law_chat import app, socketio
 from flask import render_template
+from flask_socketio import emit
 from dotenv import load_dotenv
+import time
 
 import os
 from langchain_openai import ChatOpenAI
@@ -37,7 +39,7 @@ vectorstore_dir = "vectorstore"
 ###########関数################################
 
 # ベクトルストアをロードする関数
-def load_vectorstore(url, is_pdf=False):
+def load_vectorstore():
     vectorstore = Chroma(persist_directory=vectorstore_dir, embedding_function=embeddings)
     print("既存のベクトルストアを読み込みました。")
     return vectorstore
@@ -57,9 +59,34 @@ def create_rag_chain(vectorstore):
         | StrOutputParser()
     )
 
+#websocketサーバー
+@socketio.on("chat_message")
+def handle_message(data):
+    message = data["message"]
+    history = data["history"]  # 過去のやり取り
+
+    # 履歴を使ってプロンプト作成
+    context = "\n".join([f"{h['role']}: {h['text']}" for h in history])
+    full_prompt = f"{context}\nUser: {message}\nGPT:"
+
+    #OpenAI APIにリクエスト
+    vectorstore = load_vectorstore() # ベクトルストアをロード
+    rag_chain = create_rag_chain(vectorstore) # RAGチェーンを作成
+    response_id = str(time.time())  # ユニークなIDを作成
+    emit("response_start", {"id": response_id})
+
+    gpt_response = ""
+
+    for chunk in rag_chain.stream(full_prompt):
+        # クライアントにリアルタイム送信
+        gpt_response += chunk
+        emit("response_chunk", {"id": response_id, "text": chunk})
+    
+    emit("response_end", {"id": response_id})  # メッセージの終了
+
+
+
 @app.route('/')
 def index():
-    
-    return render_template(
-        'index.html'
-    )
+    return render_template('index.html')
+
