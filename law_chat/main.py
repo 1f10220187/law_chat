@@ -18,6 +18,7 @@ import io
 from langchain.schema import Document
 from urllib.parse import urlparse
 import shutil
+from langchain.prompts import PromptTemplate
 
 # .envを読み込む
 load_dotenv()
@@ -36,6 +37,7 @@ os.environ["LANGCHAIN_API_KEY"] = LANGCHAIN_API_KEY
 llm = ChatOpenAI(model="gpt-4o-mini", openai_api_base=OPENAI_API_BASE)
 embeddings = OpenAIEmbeddings(openai_api_base=OPENAI_API_BASE)
 vectorstore_dir = "vectorstore"
+
 ###########関数################################
 
 # ベクトルストアをロードする関数
@@ -45,16 +47,41 @@ def load_vectorstore():
     return vectorstore
 
 #チェーンを構築用関数
-def format_docs(docs_list):
-    return "\n\n".join(doc.page_content for doc in docs_list)
+def format_docs(docs):
+    if not docs:
+        return "※この回答は参考判例を参照していません。\n"
+    return "\n\n".join([
+        f"【事件名】: {doc.metadata.get('case_name', '不明')}\n"
+        f"【裁判所】: {doc.metadata.get('court_name', '不明')}\n"
+        f"【判決結果】: {doc.metadata.get('result', '不明')}\n"
+        f"【要旨】: {doc.metadata.get('gist', 'なし')}\n"
+        f"【判決理由】: {doc.metadata.get('case_gist', 'なし')}\n"
+        f"【関連法規】: {doc.metadata.get('ref_law', 'なし')}\n"
+        f"------------------------"
+        for doc in docs
+    ])
+
 
 # rag_chain設定関数
 def create_rag_chain(vectorstore):
-    retriever = vectorstore.as_retriever()
-    prompt = hub.pull("rlm/rag-prompt")
+    retriever = vectorstore.as_retriever(
+        search_type='mmr', # 多様性のある検索
+        search_kwargs={
+            "k":5,
+        }
+    )
+    prompt_template = PromptTemplate.from_template("""
+            あなたは法律に詳しくやさしいAIです。ユーザーの質問に対して、以下の判例を参考にしてわかりやすく回答してください。
+            
+            判例情報:
+            {context}
+
+            ユーザーの質問:
+            {question}
+            """)
     return (
         {"context": retriever | format_docs, "question": RunnablePassthrough()}
-        | prompt
+        | prompt_template
         | llm
         | StrOutputParser()
     )
