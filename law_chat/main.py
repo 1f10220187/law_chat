@@ -48,8 +48,6 @@ def load_vectorstore(vectorstore_dir):
 
 #チェーンを構築用関数
 def format_docs(docs):
-    for doc in docs:
-        print(doc)
     if not docs:
         return "※この回答は参考判例を参照していません。\n"
     return "\n\n".join([doc.page_content for doc in docs])
@@ -82,8 +80,6 @@ def create_rag_chain(vectorstore):
 
 
 default_vector_dir = "vectorstore_all" # デフォルト
-# selected_decade = "all"  # デフォルト
-# session["selected_decade"] = selected_decade
 vectorstore = load_vectorstore(default_vector_dir) # デフォルトのベクトルストアをロード
 
 
@@ -113,7 +109,6 @@ def handle_message(data):
     context = "\n".join([f"{h['role']}: {h['text']}" for h in history])
     full_prompt = f"{context}\nUser: {message}\nGPT:"
 
-    #OpenAI APIにリクエスト
     
     rag_chain = create_rag_chain(vectorstore) # RAGチェーンを作成
     response_id = str(time.time())  # ユニークなIDを作成
