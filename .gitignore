@@ -39,3 +39,4 @@ Thumbs.db
 # 判例が入ってるディレクトリ
 supreme_court_texts/
 law_chat/create_vectorstore.py
+supreme_courts/

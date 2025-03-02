@@ -1,5 +1,5 @@
 from law_chat import app, socketio
-from flask import render_template
+from flask import render_template, request ,jsonify, session
 from flask_socketio import emit
 from dotenv import load_dotenv
 import time
@@ -36,30 +36,24 @@ os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 os.environ["LANGCHAIN_API_KEY"] = LANGCHAIN_API_KEY
 llm = ChatOpenAI(model="gpt-4o-mini", openai_api_base=OPENAI_API_BASE)
 embeddings = OpenAIEmbeddings(openai_api_base=OPENAI_API_BASE)
-vectorstore_dir = "vectorstore"
+# vectorstore_dir = "vectorstore"
 
 ###########関数################################
 
 # ベクトルストアをロードする関数
-def load_vectorstore():
+def load_vectorstore(vectorstore_dir):
     vectorstore = Chroma(persist_directory=vectorstore_dir, embedding_function=embeddings)
     print("ベクトルストアを読み込みました。")
     return vectorstore
 
 #チェーンを構築用関数
 def format_docs(docs):
+    for doc in docs:
+        print(doc)
     if not docs:
         return "※この回答は参考判例を参照していません。\n"
-    return "\n\n".join([
-        f"【事件名】: {doc.metadata.get('case_name', '不明')}\n"
-        f"【裁判所】: {doc.metadata.get('court_name', '不明')}\n"
-        f"【判決結果】: {doc.metadata.get('result', '不明')}\n"
-        f"【要旨】: {doc.metadata.get('gist', 'なし')}\n"
-        f"【判決理由】: {doc.metadata.get('case_gist', 'なし')}\n"
-        f"【関連法規】: {doc.metadata.get('ref_law', 'なし')}\n"
-        f"------------------------"
-        for doc in docs
-    ])
+    return "\n\n".join([doc.page_content for doc in docs])
+
 
 
 # rag_chain設定関数
@@ -86,7 +80,28 @@ def create_rag_chain(vectorstore):
         | StrOutputParser()
     )
 
-vectorstore = load_vectorstore() # ベクトルストアをロード
+
+default_vector_dir = "vectorstore_all" # デフォルト
+# selected_decade = "all"  # デフォルト
+# session["selected_decade"] = selected_decade
+vectorstore = load_vectorstore(default_vector_dir) # デフォルトのベクトルストアをロード
+
+
+# 使用するベクトルストア設定用関数
+@app.route("/set_vectorstore", methods=["POST"])
+def set_vectorstore():
+    selected_decade = request.form.get("decade", "all")  # フォームデータで取得
+    if selected_decade != "all":
+        vectorstore_dir = f"vectorstores/{selected_decade}"
+    else:
+        vectorstore_dir = "vectorstore_all"
+
+    session["selected_decade"] = selected_decade
+    session.modified = True  # セッション変更を明示
+
+    print(f"ベクトルストアを {vectorstore_dir} に変更")
+
+    return "OK", 200  
 
 #websocketサーバー
 @socketio.on("chat_message")
@@ -117,5 +132,7 @@ def handle_message(data):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    selected_decade = session.get("selected_decade", "all")
+    return render_template('index.html', selected_decade=selected_decade)
 
+app.secret_key = os.environ["SECRET_KEY"]
