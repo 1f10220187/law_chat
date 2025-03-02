@@ -4,6 +4,7 @@ body{
 
 #header{
     background-color: rgb(242, 252, 205);
+    border-radius: 5px;
 }
 
 #chat-box{
