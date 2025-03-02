@@ -12,16 +12,20 @@ law_chat は、判例を検索し、関連する情報を提供するチャッ�
 
 # 環境構築
 
-pip
-
-インストール手順
-
 ## 仮想環境の作成（推奨）
 python -m venv venv<br>
 source venv/bin/activate  # Windowsの場合: venv\Scripts\activate
 
 ## 必要パッケージのインストール
-pip install -r requirements.txt
+pip install -r requirements.txt<br>
+または<br>
+pip install flask <br>
+pip install jinja2 <br>
+pip install --upgrade langchain langchain-community langchain-chroma <br>
+pip install langchain-openai <br>
+pip install python-dotenv <br>
+pip install flask-socketio eventlet <br>
+※不足があった場合は別途インストールしてください。
 
 ## 使用方法
 
