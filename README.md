@@ -7,7 +7,7 @@ law_chat は、判例を検索し、関連する情報を提供するチャッ�
 
 ## データソース
 
-本プロジェクトでは、japanese-law-analysis/data_set のデータを使用させていただきました。
+本プロジェクトでは、[japanese-law-analysis/data_set](https://github.com/japanese-law-analysis/data_set) のデータを使用させていただきました。
 本データはCC0ライセンスのもとで提供されており、自由に利用できます。
 
 環境構築
