@@ -17,7 +17,7 @@ pip
 インストール手順
 
 # 仮想環境の作成（推奨）
-python -m venv venv
+python -m venv venv<br>
 source venv/bin/activate  # Windowsの場合: venv\Scripts\activate
 
 # 必要パッケージのインストール
