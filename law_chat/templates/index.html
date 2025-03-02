@@ -14,7 +14,21 @@
         <div id="header" class="navbar navbar-light p-4 mt-2 mb-3">
             <p class="mx-auto display-2 fw-light text-decoration-underline">RAG Chat</p>
         </div>
+        <div>
+            <p class="text-center fw-bold">1980~2020年代の最高裁の判例をもとに回答するgptとチャット形式で会話できるアプリです</p>
+        </div>
         <div class="container d-flex flex-column align-items-center mt-4">
+            <div class="mb-3 text-center">
+                <p class="mb-1">検索に使用する判例の年代を選択してください</p><br>
+                <select id="decade">
+                    <option value="all">All</option>
+                    <option value="1980s">1980s</option>
+                    <option value="1990s">1990s</option>
+                    <option value="2000s">2000s</option>
+                    <option value="2010s">2010s</option>
+                    <option value="2020s">2020s</option>
+                </select>
+            </div>
             <div id="chat-box" class="p-3 mb-3 d-flex flex-column">
 
             </div>
@@ -26,6 +40,28 @@
         
 
         <script>
+            // ベクトルストア選択
+            document.addEventListener("DOMContentLoaded", function() {
+                const selectElement = document.getElementById("decade");
+                selectElement.value = "{{ selected_decade }}";
+
+                selectElement.addEventListener("change", function() {
+                    let formData = new FormData();
+                    formData.append("decade", selectElement.value);
+
+                    fetch("/set_vectorstore", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("ベクトルストア変更:", selectElement.value);
+                        }
+                    });
+                });
+            });
+
+            // スクロール
             function scrollToBottom() {
                 let chatBox = document.getElementById("chat-box");
                 setTimeout(() => {
@@ -33,6 +69,7 @@
                 }, 50); // 50msの遅延で描画完了を待つ
             }
 
+            // メッセージ送受信関係
             let socket = io();
             let responses = {}; // 各メッセージのIDごとにレスポンスを管理
 
@@ -46,7 +83,7 @@
                 // ユーザーメッセージを追加
                 let chatBox = document.getElementById("chat-box");
                 let userMessage = document.createElement("div")
-                userMessage.className = "message user align-self-end";
+                userMessage.className = "message user align-self-end mb-1 mt-1";
                 userMessage.innerHTML = "<b>あなた: </b>" + msg;
 
                 chatBox.appendChild(userMessage);
@@ -67,7 +104,7 @@
                 let chatBox = document.getElementById("chat-box");
                 let gptMessage =document.createElement("p");
 
-                gptMessage.className = "message gpt";
+                gptMessage.className = "message gpt mb-3";
                 gptMessage.id = "msg-" + data.id;
                 gptMessage.innerHTML = "<b>GPT: </b>";
 
