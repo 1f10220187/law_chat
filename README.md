@@ -23,15 +23,12 @@ source venv/bin/activate  # Windowsの場合: venv\Scripts\activate
 ## 必要パッケージのインストール
 pip install -r requirements.txt
 
-使用方法
+## 使用方法
 
-アプリの起動
-
-flask run
-
-## 必要な変数の定義
+### 必要な変数の定義
 プロジェクト直下(main.pyと同じ階層)に.envファイルを作成して下さい。<br>
-そこで、以下の変数を定義してください。
+そこで、以下の変数を定義してください。<br>
+
 FLASK_APP=wsgi.py
 FLASK_ENV=development
 SECRET_KEY={任意のシークレットキー}
@@ -40,6 +37,9 @@ USER_AGENT=law_chat_app
 OPENAI_API_KEY={openAIのapiキー}
 LANGCHAIN_API_KEY={langchainのapiキー}
 OPENAI_API_BASE={openAIのエンドポイント}
+
+### アプリの起動
+flask run
 
 # ライセンス
 
