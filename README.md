@@ -31,6 +31,7 @@ flask run
 
 ## 必要な変数の定義
 プロジェクト直下(main.pyと同じ階層)に.envファイルを作成して下さい。<br>
+そこで、以下の変数を定義してください。
 FLASK_APP=wsgi.py
 FLASK_ENV=development
 SECRET_KEY={任意のシークレットキー}
