@@ -10,17 +10,17 @@ law_chat は、判例を検索し、関連する情報を提供するチャッ�
 本プロジェクトでは、[japanese-law-analysis/data_set](https://github.com/japanese-law-analysis/data_set) のデータを使用させていただきました。
 本データはCC0ライセンスのもとで提供されており、自由に利用できます。
 
-環境構築
+# 環境構築
 
 pip
 
 インストール手順
 
-# 仮想環境の作成（推奨）
+## 仮想環境の作成（推奨）
 python -m venv venv<br>
 source venv/bin/activate  # Windowsの場合: venv\Scripts\activate
 
-# 必要パッケージのインストール
+## 必要パッケージのインストール
 pip install -r requirements.txt
 
 使用方法
