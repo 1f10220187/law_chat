@@ -29,13 +29,16 @@ pip install -r requirements.txt
 
 flask run
 
-WebSocketを用いたチャット
+## 必要な変数の定義
+プロジェクト直下(main.pyと同じ階層)に.envファイルを作成して下さい。<br>
+FLASK_APP=wsgi.py
+FLASK_ENV=development
+SECRET_KEY={任意のシークレットキー}
+USER_AGENT=law_chat_app
 
-ユーザーが入力した質問をサーバーに送信
-
-サーバーが検索し、関連する情報を返す
-
-ストリーミング出力により、リアルタイムにレスポンスを表示
+OPENAI_API_KEY={openAIのapiキー}
+LANGCHAIN_API_KEY={langchainのapiキー}
+OPENAI_API_BASE={openAIのエンドポイント}
 
 # ライセンス
 
