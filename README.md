@@ -29,14 +29,14 @@ pip install -r requirements.txt
 プロジェクト直下(main.pyと同じ階層)に.envファイルを作成して下さい。<br>
 そこで、以下の変数を定義してください。<br>
 
-FLASK_APP=wsgi.py
-FLASK_ENV=development
-SECRET_KEY={任意のシークレットキー}
-USER_AGENT=law_chat_app
+FLASK_APP=wsgi.py <br>
+FLASK_ENV=development <br>
+SECRET_KEY={任意のシークレットキー} <br>
+USER_AGENT=law_chat_app <br>
 
-OPENAI_API_KEY={openAIのapiキー}
-LANGCHAIN_API_KEY={langchainのapiキー}
-OPENAI_API_BASE={openAIのエンドポイント}
+OPENAI_API_KEY={openAIのapiキー} <br>
+LANGCHAIN_API_KEY={langchainのapiキー} <br>
+OPENAI_API_BASE={openAIのエンドポイント} <br>
 
 ### アプリの起動
 flask run
